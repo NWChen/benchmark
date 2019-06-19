@@ -1,17 +1,11 @@
 #include <assert.h>
+#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
-int main(int argc, char **argv) {
-
-	// inputs
-	assert(argc == 3);
-	int n_cpus = atoi(argv[1]);
-	int n_max = atoi(argv[2]);
-	assert(n_cpus >= 1 && n_cpus <= 48);
-	assert(n_max >= 0 && n_max <= 5000);
-	printf("CPUs=%d / n=%d", n_cpus, n_max);
+int find_primes(int n_max) {
 
 	// measure execution time
 	clock_t start, end;
@@ -49,4 +43,31 @@ int main(int argc, char **argv) {
 	double us = 1000.0 * ms;
 	printf("\n-\nRan in %f milliseconds (%f microseconds).\r\n", ms, us);
 
+	return 0;
+}
+
+int main(int argc, char **argv) {
+
+	// inputs
+	assert(argc == 3);
+	int n_cpus = atoi(argv[1]);
+	int n_max = atoi(argv[2]);
+	assert(n_cpus >= 1 && n_cpus <= 48);
+	assert(n_max >= 0 && n_max <= 5000);
+	printf("CPUs=%d / n=%d", n_cpus, n_max);
+
+	pid_t child_pid = fork();
+	if(child_pid == 0) { // child
+		sleep(1); // wait for parent (???)
+		find_primes(n_max);
+	} else {
+		char str_cpus[10], str_pid[12];
+		sprintf(str_pid, "%d", child_pid);
+		if(n_cpus > 1) 
+			sprintf(str_cpus, "0-%d", n_cpus-1);
+		else
+			sprintf(str_cpus, "%d", 0);
+		char* params[] = {"-p", "-c", str_cpus, str_pid, NULL};
+		execv("taskset", params);
+	}
 }
