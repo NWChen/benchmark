@@ -3,16 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/sysinfo.h>
+#include <sys/time.h>
 #include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
 int find_primes(int n_max) {
 
 	// measure execution time
-	clock_t start, end;
-	start = clock();
-	srand(time(NULL));
+	//clock_t start, end;
+	//start = clock();
+	//srand(time(NULL));
+	struct timeval t0, t1;
+	gettimeofday(&t0, NULL);
 
 	// populate sieve
 	int *ls = (int *)malloc(sizeof(int) * (n_max - 1));
@@ -36,13 +38,16 @@ int find_primes(int n_max) {
 	}
 
 	// show output & runtime
-	end = clock();
+	//end = clock();
+	gettimeofday(&t1, NULL);
 	printf("\n-\n");
 	for(int i=0; i<n_max-1; i++)
 		if(ls[i] != -1)
 			printf("%d ", ls[i]);
-	double ms = 1000.0 * ((double) (end - start)) / CLOCKS_PER_SEC;
-	double us = 1000.0 * ms;
+	//double ms = 1000.0 * ((double) (end - start)) / CLOCKS_PER_SEC;
+	//double us = 1000.0 * ms;
+	double ms = (double)(t1.tv_usec - t0.tv_usec)/1000.0 + (double)(t1.tv_sec - t0.tv_sec)*1000.0;
+	double us = ms*1000.0;
 	printf("\n-\nRan in %f milliseconds (%f microseconds).\r\n", ms, us);
 
 	return 0;
