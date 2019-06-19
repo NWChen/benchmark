@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main(int argc, char **argv) {
 
@@ -12,11 +13,17 @@ int main(int argc, char **argv) {
 	assert(n_max >= 0 && n_max <= 5000);
 	printf("CPUs=%d / n=%d", n_cpus, n_max);
 
+	// measure execution time
+	clock_t start, end;
+	start = clock();
+	srand(time(NULL));
+
 	// populate sieve
 	int *ls = (int *)malloc(sizeof(int) * (n_max - 1));
 	for(int i=2; i<=n_max; i++)
 		ls[i-2] = i;
 
+	// eliminate composite numbers
 	int p = 2;
 	int stop = 0;
 	while(!stop) {	
@@ -32,9 +39,14 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("\n");
+	// show output & runtime
+	end = clock();
+	printf("\n-\n");
 	for(int i=0; i<n_max-1; i++)
 		if(ls[i] != -1)
 			printf("%d ", ls[i]);
-	printf("\r\n");
+	double ms = 1000.0 * ((double) (end - start)) / CLOCKS_PER_SEC;
+	double us = 1000.0 * ms;
+	printf("\n-\nRan in %f milliseconds (%f microseconds).\r\n", ms, us);
+
 }
