@@ -1,10 +1,10 @@
-CC=gcc
+CC=gcc -std=c99
 CFLAGS=-I.
 
-primes: primes.o
-	$(CC) -o primes primes.o
+benchmark: benchmark.o
+	$(CC) -o benchmark benchmark.o
 
 .PHONY: clean
 
 clean:
-	rm -f primes *.o
+	rm -f benchmark *.o

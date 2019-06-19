@@ -2,6 +2,8 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/sysinfo.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -49,12 +51,15 @@ int find_primes(int n_max) {
 int main(int argc, char **argv) {
 
 	// inputs
-	assert(argc == 3);
+	if(argc != 3)
+		printf("USAGE: ./benchmark [no. of CPUs] [max number]\nEXAMPLE: ./benchmark 48 5000");
+
 	int n_cpus = atoi(argv[1]);
 	int n_max = atoi(argv[2]);
 	assert(n_cpus >= 1 && n_cpus <= 48);
-	assert(n_max >= 0 && n_max <= 5000);
-	printf("CPUs=%d / n=%d", n_cpus, n_max);
+    assert(n_max >= 0);
+	printf("Using %d/%d available CPUs.\r\n", n_cpus, get_nprocs());
+	printf("Searching for all primes from 2 to %d.\r\n", n_max);
 
 	pid_t child_pid = fork();
 	if(child_pid == 0) { // child
@@ -69,5 +74,8 @@ int main(int argc, char **argv) {
 			sprintf(str_cpus, "%d", 0);
 		char* params[] = {"-p", "-c", str_cpus, str_pid, NULL};
 		execv("taskset", params);
+		wait(NULL); // reap child process
 	}
+
+	return 0;
 }
